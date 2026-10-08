@@ -1,12 +1,51 @@
 import Image from "next/image";
 import Link from "next/link";
+import fs from "fs";
+import path from "path";
+import ProcessTimeline from "../components/ProcessTimeline";
+import PricingPackages from "../components/PricingPackages";
+import TeamSection from "../components/TeamSection";
+import ClientMarquee from "../components/ClientMarquee";
+import FaqSection from "../components/FaqSection";
+import CostEstimator from "../components/CostEstimator";
+import ContactForm from "../components/ContactForm";
 
 export default function Home() {
+  const portfolioDir = path.join(process.cwd(), 'public', 'portfolio');
+  let portfolioImages: string[] = [];
+  try {
+    if (fs.existsSync(portfolioDir)) {
+      portfolioImages = fs.readdirSync(portfolioDir).filter(file => file.match(/\.(jpeg|jpg|png)$/i));
+    }
+  } catch (err) {
+    console.error("Failed to load portfolio images", err);
+  }
+
+  if (portfolioImages.length === 0) {
+    portfolioImages = ["/gallery-1.jpg", "/gallery-2.jpg", "/gallery-3.jpg"];
+  } else {
+    portfolioImages = portfolioImages.map(file => `/portfolio/${file}`);
+  }
+
+  // Split images into 3 rows for the infinite marquee
+  const rowSize = Math.ceil(portfolioImages.length / 3);
+  const row1 = portfolioImages.slice(0, rowSize);
+  const row2 = portfolioImages.slice(rowSize, rowSize * 2);
+  const row3 = portfolioImages.slice(rowSize * 2);
+
+  // Duplicate for seamless infinite scrolling
+  const marquee1 = [...row1, ...row1];
+  const marquee2 = [...row2, ...row2];
+  const marquee3 = [...row3, ...row3];
+
   return (
     <main>
       {/* Navbar */}
       <header data-aos="fade-down">
-        <Link href="/" className="logo">NS EVENTS</Link>
+        <Link href="/" className="logo">
+          <Image src="/logo.jpg" alt="NS Event Logo" width={50} height={50} className="logo-img" />
+          <span>NS EVENTS</span>
+        </Link>
         <nav className="nav-links">
           <Link href="#services">Services</Link>
           <Link href="#gallery">Gallery</Link>
@@ -95,27 +134,40 @@ export default function Home() {
         <h2 className="section-title" data-aos="fade-up">Our Portfolio</h2>
         <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">A glimpse into our magical creations</p>
         
-        <div className="gallery-grid">
-          <div className="gallery-item" data-aos="fade-up" data-aos-delay="200">
-            <Image src="/gallery-1.jpg" alt="Corporate Event Gala" width={500} height={500} />
-            <div className="gallery-overlay">
-              <h3>Corporate Excellence</h3>
-            </div>
+        <div className="marquee-container" data-aos="fade-up" data-aos-delay="200">
+          <div className="marquee-row marquee-left">
+            {marquee1.map((src, idx) => (
+              <div key={`row1-${idx}`} className="marquee-item">
+                <Image src={src} alt={`Event ${idx}`} fill sizes="350px" />
+                <div className="marquee-overlay"><h3>Premium Event</h3></div>
+              </div>
+            ))}
           </div>
-          <div className="gallery-item" data-aos="fade-up" data-aos-delay="400">
-            <Image src="/gallery-2.jpg" alt="Luxury Outdoor Wedding" width={500} height={500} />
-            <div className="gallery-overlay">
-              <h3>Fairytale Weddings</h3>
-            </div>
+          <div className="marquee-row marquee-right">
+            {marquee2.map((src, idx) => (
+              <div key={`row2-${idx}`} className="marquee-item">
+                <Image src={src} alt={`Event ${idx}`} fill sizes="350px" />
+                <div className="marquee-overlay"><h3>Luxury Decor</h3></div>
+              </div>
+            ))}
           </div>
-          <div className="gallery-item" data-aos="fade-up" data-aos-delay="600">
-            <Image src="/gallery-3.jpg" alt="Private Birthday Party" width={500} height={500} />
-            <div className="gallery-overlay">
-              <h3>Bespoke Parties</h3>
-            </div>
+          <div className="marquee-row marquee-left">
+            {marquee3.map((src, idx) => (
+              <div key={`row3-${idx}`} className="marquee-item">
+                <Image src={src} alt={`Event ${idx}`} fill sizes="350px" />
+                <div className="marquee-overlay"><h3>Magical Moments</h3></div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
+      <ProcessTimeline />
+      <PricingPackages />
+      <ClientMarquee />
+      <TeamSection />
+      <CostEstimator />
+      <FaqSection />
 
       {/* Testimonials Section */}
       <section className="testimonials-section">
@@ -126,17 +178,17 @@ export default function Home() {
           <div className="testimonial-card" data-aos="flip-up" data-aos-delay="200">
             <div className="stars">★★★★★</div>
             <p>"NS Events completely transformed our wedding day. Every little detail was perfect, and we didn't have to worry about a single thing. Truly magical!"</p>
-            <span className="testimonial-author">- Sarah & Rahul</span>
+            <span className="testimonial-author">- Priya & Rohan</span>
           </div>
           <div className="testimonial-card" data-aos="flip-up" data-aos-delay="400">
             <div className="stars">★★★★★</div>
             <p>"The best event planners in Patna! They handled our corporate gala for 500 guests with absolute professionalism and elegance."</p>
-            <span className="testimonial-author">- TechFlow Inc.</span>
+            <span className="testimonial-author">- Aman K., Director</span>
           </div>
           <div className="testimonial-card" data-aos="flip-up" data-aos-delay="600">
             <div className="stars">★★★★★</div>
             <p>"My 25th birthday party was everything I dreamed of. The decor, the lighting, the vibe—NS Events nailed it."</p>
-            <span className="testimonial-author">- Jessica M.</span>
+            <span className="testimonial-author">- Sneha M.</span>
           </div>
         </div>
       </section>
@@ -146,19 +198,7 @@ export default function Home() {
         <h2 className="section-title" data-aos="fade-up">Get In Touch</h2>
         <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">Let's discuss how we can make your next event extraordinary</p>
         
-        <form className="contact-form" data-aos="fade-up" data-aos-delay="300">
-          <input type="text" name="name" placeholder="Your Full Name" required />
-          <input type="email" name="email" placeholder="Your Email Address" required />
-          <select name="event-type" defaultValue="" required>
-            <option value="" disabled>Select Event Type</option>
-            <option value="wedding">Luxury Wedding</option>
-            <option value="corporate">Corporate Gala</option>
-            <option value="party">Private Party</option>
-            <option value="other">Other Event</option>
-          </select>
-          <textarea name="message" placeholder="Tell us about your dream event..." required></textarea>
-          <button type="submit" className="btn-primary">Send Inquiry</button>
-        </form>
+        <ContactForm />
       </section>
 
       {/* Footer */}
@@ -167,7 +207,7 @@ export default function Home() {
           <h2>Let's Create Magic Together</h2>
           <p>Contact NS Events to begin planning your extraordinary celebration.</p>
           <div className="social-links">
-            <a href="https://www.instagram.com/ns.event.patna" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.instagram.com/ns.event.patna?stkn=Y2JscmdxeHI4dG1u" target="_blank" rel="noopener noreferrer">Instagram</a>
             <a href="mailto:contact@nseventpatna.com">Email Us</a>
           </div>
           <p className="copyright">&copy; {new Date().getFullYear()} NS Event Patna. All Rights Reserved.</p>
@@ -175,7 +215,7 @@ export default function Home() {
       </footer>
 
       {/* WhatsApp Floating Button */}
-      <a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className="whatsapp-float" aria-label="Chat on WhatsApp">
+      <a href="https://wa.me/916203846782" target="_blank" rel="noopener noreferrer" className="whatsapp-float" aria-label="Chat on WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
           <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
         </svg>
